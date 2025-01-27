@@ -22,4 +22,12 @@ function countNeighbors(mat, cellI, cellJ) {
 
 function handleContextMenu(event) {
     event.preventDefault();
-  }
+}
+
+function renderCell(location, value) {
+    // Select the elCell and set the value
+    const elCell = document.querySelector(`.cell-${location.i}-${location.j}`)
+    elCell.innerHTML = value
+}
+
+
