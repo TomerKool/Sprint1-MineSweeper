@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mine Sweeper</title>
+    <link rel="stylesheet" href="css/app.css">
+</head>
+
+<body onload="onInit()">
+    <h1>Mine Sweeper</h1>
+
+    <div class="status-container">
+        <div class="live-counter">❤️❤️❤️</div>
+    </div>
+
+    <div class="level-picker">
+
+    </div>
+
+    <div class="btn-container">
+        <button hidden>undo</button>
+        <button onclick="onRestart()">😊</button>
+        <button hidden>hint</button>
+        <button hidden>safe click</button>
+        <button hidden>Mega hint</button>
+        <button hidden>Exterminator</button>
+        
+
+    </div>
+
+    <div class="board-container"></div>
+
+
+    <div class="footer">by Tomer Kutai</div>
+    <script src="js/utils.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
