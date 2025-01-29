@@ -12,17 +12,26 @@
     <h1>Mine Sweeper</h1>
 
     <div class="status-container">
-        <div class="live-counter">❤️❤️❤️</div>
+        <div class="live-counter"></div>
     </div>
 
     <div class="level-picker">
-
+        <button class="btn level1" onclick="onChangeLevel(this, 1)">Beginner</button>
+        <button class="btn level2" onclick="onChangeLevel(this, 2)">Medium</button>
+        <button class="btn level3" onclick="onChangeLevel(this, 3)">Expert</button>
+        <button class="btn level0" onclick="onChangeLevel(this, 0)">Customize</button><br>
     </div>
 
     <div class="btn-container">
         <button hidden>undo</button>
-        <button onclick="onRestart()">😊</button>
-        <button hidden>hint</button>
+        <button class="btn restart-btn" onclick="onRestart()">😊</button><br>
+        <button class="btn lives-btn" onclick="onLivesMode(this)">Lives</button><br>
+
+        <button class="btn hint-btn hint-btn1" onclick="onClickHint(this)">💡</button>
+        <button class="btn hint-btn hint-btn2" onclick="onClickHint(this)">💡</button>
+        <button class="btn hint-btn hint-btn3" onclick="onClickHint(this)">💡</button>
+
+
         <button hidden>safe click</button>
         <button hidden>Mega hint</button>
         <button hidden>Exterminator</button>
@@ -31,11 +40,12 @@
     </div>
 
     <div class="board-container"></div>
-
+    <div class="timer"></div>
     <div class="footer">by Tomer Kutai</div>
 
     <script src="js/utils.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/hints.js"></script>
 </body>
 
 </html>
