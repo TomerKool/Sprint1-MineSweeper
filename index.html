@@ -11,38 +11,47 @@
 <body onload="onInit()">
     <h1>Mine Sweeper</h1>
 
-    <div class="status-container">
-        <div class="live-counter"></div>
-    </div>
+    <div class="settings">
+        <div class="level-picker">
+            <button class="btn level-btn level1" onclick="onClickLevel(1)">Beginner</button>
+            <button class="btn level-btn level2" onclick="onClickLevel(2)">Medium</button>
+            <button class="btn level-btn level3" onclick="onClickLevel(3)">Expert</button>
+            <button hidden class="btn level0" onclick="onChangeLevel(this, 0)">Customize</button><br>
+        </div>
 
-    <div class="level-picker">
-        <button class="btn level1" onclick="onChangeLevel(this, 1)">Beginner</button>
-        <button class="btn level2" onclick="onChangeLevel(this, 2)">Medium</button>
-        <button class="btn level3" onclick="onChangeLevel(this, 3)">Expert</button>
-        <button class="btn level0" onclick="onChangeLevel(this, 0)">Customize</button><br>
-    </div>
-
-    <div class="btn-container">
-        <button hidden>undo</button>
-        <button class="btn restart-btn" onclick="onRestart()">😊</button><br>
         <button class="btn lives-btn" onclick="onLivesMode(this)">Lives</button><br>
+    </div>
 
+
+
+    <button class="btn restart-btn" onclick="onRestart()">😊</button><br>
+
+    <div class="board-container"></div>
+
+    <div class="in-game-container">
+        <div class="live-counter"></div>
+        <button hidden class="btn undo-btn" onclick="onUndo()">↩️</button>
+        
+        <button class="btn safeclick-btn" onclick="onSafeClick()">Safe click</button>
+        <span class="safeclick-count"></span> clicks left
+        
         <button class="btn hint-btn hint-btn1" onclick="onClickHint(this)">💡</button>
         <button class="btn hint-btn hint-btn2" onclick="onClickHint(this)">💡</button>
         <button class="btn hint-btn hint-btn3" onclick="onClickHint(this)">💡</button>
 
 
-        <button hidden>safe click</button>
         <button hidden>Mega hint</button>
         <button hidden>Exterminator</button>
-        
+
 
     </div>
 
-    <div class="board-container"></div>
-    <div class="timer"></div>
+    <div class="timer">    </div>
+    <div class="score-board">Best Score: <span></span></div>
+
     <div class="footer">by Tomer Kutai</div>
 
+    <script src="js/settings.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/app.js"></script>
     <script src="js/hints.js"></script>

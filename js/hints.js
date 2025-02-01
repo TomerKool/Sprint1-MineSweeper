@@ -2,7 +2,9 @@
 
 
 var gIsHintMode
-
+var gSafeClickCount
+/////////////////////////////////////////////////////////////////////////////////
+//*SIMPLE HINTS
 function onClickHint(elHintBtn) {
     // prevent clicking on two hints
     for (var i = 0; i < 3; i++) {
@@ -19,11 +21,21 @@ function removeUsedClick() {
         var elCurrHintBtnX = document.querySelector(`.hint-btn${i + 1}`)
         if (elCurrHintBtnX.classList.contains('hint-on')) {
             elCurrHintBtnX.classList.remove('hint-on')
-            elCurrHintBtnX.hidden = 'true'
+            elCurrHintBtnX.hidden = true
         }
     }
     gIsHintMode = false
 }
+
+function resetHints() {
+    for (var i = 0; i < 3; i++) {
+        var elCurrHintBtnX = document.querySelector(`.hint-btn${i + 1}`)
+        console.log(elCurrHintBtnX);
+        if(elCurrHintBtnX.hidden) elCurrHintBtnX.hidden = false
+    }
+}
+
+
 
 
 
@@ -62,7 +74,53 @@ function hideCells(board, cellI, cellJ) {
             if (!board[i][j].isCovered) continue
             //execute
             var location = { i, j }
-            renderCell(location, COVERED_CELL)
+            if (board[i][j].isMarked) {
+                renderCell(location, FLAG)
+            } else {
+                renderCell(location, COVERED_CELL)
+            }
         }
     }
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+//*SAFE CLICK
+
+function onSafeClick() {
+    if (!gSafeClickCount) return
+    if (!gGame.isOn) return
+    var safeCellLoc = getSafeCellLoc()
+
+
+    renderCell(safeCellLoc, SAFE_CELL)
+    gGame.isOn = false
+    gSafeClickCount--
+    renderSafeClickCount()
+
+    setTimeout(() => {
+        renderCell(safeCellLoc, COVERED_CELL)
+        gGame.isOn = true
+    }, 1500);
+
+}
+
+function getSafeCellLoc() {
+
+    var safeCellsLocs = []
+    for (var i = 0; i < gBoard.length; i++) {
+        for (var j = 0; j < gBoard[i].length; j++) {
+            var currCell = gBoard[i][j]
+            if (!currCell.isMine && currCell.isCovered) safeCellsLocs.push({ i, j })
+        }
+    }
+    console.log(safeCellLoc);
+
+    var safeCellLoc = safeCellsLocs[getRandomInt(0, safeCellsLocs.length - 1)]
+    return safeCellLoc
+
+}
+
+function renderSafeClickCount() {
+    var elSafeClickCount = document.querySelector('.safeclick-count')
+    elSafeClickCount.innerText = gSafeClickCount
 }

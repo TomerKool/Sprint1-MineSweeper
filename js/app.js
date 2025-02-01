@@ -1,21 +1,35 @@
 'use strict'
+
+//TODO Storage best score in other levels 
+//TODO fix or remove undo
+//TODO Set wrong flag icon
+//TODO should also start timer and game
 //Images
-const COVERED_CELL = '🪟'
+const COVERED_CELL = '🟫'
 const MINE = '💣'
 const FLAG = '🚩'
+const WRONG_FLAG = '❌'
 const SMILE = '😊'
 const SMILE_WIN = '😎'
 const SMILE_LOSE = '😵'
 const SMILE_HIT_MINE = '😨'
 const EMPTY = '🌫️'
+const SAFE_CELL = '🕶️'
+
 
 
 var gBoard
-var gLevel = { SIZE: 4, MINES: 2 }
+var gLevel = BEGINNER
 var gGame
 var gIsFirstClick
 var gIsLivesMode = true
 var gInterval
+var gLastClick
+var gExpandedCells
+
+// var gBestScoreBeginner
+// var gBestScoreMedium
+// var gBestScoreExpert
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -31,11 +45,18 @@ function onInit() {
     gBoard = buildBoard()
     gIsFirstClick = true
     gIsHintMode = false
+    gSafeClickCount = 3
+    gExpandedCells = []
 
     renderBoard(gBoard, '.board-container')
-    renderLiveCount(gGame.lives)
+    renderStatus(gGame.lives)
+    renderBestScore(gLevel.NAME)
+    renderSafeClickCount()
+
+    displayLevel()
 
 
+    resetHints()
     resetTimer()
 
 }
@@ -129,6 +150,9 @@ function setMinesNegsCount(board) {
 
 function onCellClicked(elCell, i, j) {
     if (!gGame.isOn) return
+
+
+
     console.log('gGame.coveredCount: ', gGame.coveredCount);
     if (gIsHintMode) {
         showCells(gBoard, i, j)
@@ -158,6 +182,9 @@ function onCellClicked(elCell, i, j) {
     } else {//*HIT EMPTY
         expandUncover(gBoard, elCell, i, j)
     }
+    //!remove note if this works at the end of undo creation 
+    gLastClick = { i, j }
+    console.log(gLastClick);
 
     checkGameOver()
 
@@ -167,6 +194,8 @@ function firstClick(elCell, i, j) {
     //Model:
     gBoard[i][j].isCovered = false
     gGame.coveredCount--
+    gLastClick = { i, j }
+    console.log(gLastClick);
     //DOM:
     elCell.innerHTML = EMPTY
     gIsFirstClick = false
@@ -208,10 +237,19 @@ function unCoverMines() {
                 //Model:
                 gBoard[i][j].isCovered = false
                 gGame.coveredCount--
-                //Model:
+                //DOM:
                 var elCurrCell = document.querySelector(`.cell-${i}-${j}`)
                 elCurrCell.innerHTML = MINE
+            } else if(gBoard[i][j].isMarked) {
+                //Model
+                gBoard[i][j].isMarked = false
+                //DOM
+                var elCurrCell = document.querySelector(`.cell-${i}-${j}`)
+
+                elCurrCell.innerHTML = WRONG_FLAG
             }
+
+
         }
     }
 }
@@ -224,14 +262,17 @@ function uncoverCell(selector, value, cellI, cellJ) {
     selector.innerHTML = value
 }
 
+
 function expandUncover(board, elCell, cellI, cellJ) {
     if (board[cellI][cellJ].minesAroundCount) return
+
+    // gExpandedCells = []`
 
     for (var i = cellI - 1; i <= cellI + 1; i++) {
         if (i < 0 || i >= board.length) continue
         for (var j = cellJ - 1; j <= cellJ + 1; j++) {
             //Regular neighbors loop checks
-            if (i === cellI && j === cellJ) continue // not skipping the middle cell
+            // if (i === cellI && j === cellJ) continue // not skipping the middle cell
             if (j < 0 || j >= board[i].length) continue
 
             //skip marked cells , and uncovered cells to avoid endless loop of ping pong check between two cells
@@ -240,6 +281,8 @@ function expandUncover(board, elCell, cellI, cellJ) {
             //execute
             var value = board[i][j].minesAroundCount ? board[i][j].minesAroundCount : EMPTY
             var elCurrCell = document.querySelector(`.cell-${i}-${j}`)
+            gExpandedCells.push({ selector: elCurrCell, i, j }) // save all expanded cells in array for undo function
+
             uncoverCell(elCurrCell, value, i, j)
             if (value === EMPTY) expandUncover(board, elCurrCell, i, j)
         }
@@ -265,15 +308,20 @@ function endGame(isWin) {
     var elRestartBtn = document.querySelector('.restart-btn')
 
     if (isWin) {
-        console.log('WIN');
-
         elRestartBtn.innerText = SMILE_WIN
+        var newHighScore = saveBestScore()
+        if (newHighScore) {
+            renderBestScore(gLevel.NAME)
+            renderStatus('newHighScore')
+        } else {
+
+            renderStatus('win')
+        }
 
     } else {
-        console.log('LOSE');
 
         elRestartBtn.innerHTML = SMILE_LOSE
-        renderLiveCount()
+        renderStatus('lose')
     }
 
     clearInterval(gInterval)
@@ -289,91 +337,89 @@ function onRestart() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////
-//*LIVES MODE
-function renderLiveCount(liveCount) {
+//*LOCAL STORAGE 
 
-    switch (liveCount) {
-        case 0:
-            var liveDisplay = 'No Mercy'
-            break
-        case 1:
-            var liveDisplay = '❤️'
-            break
-        case 2:
-            var liveDisplay = '❤️❤️'
-            break
-        case 3:
-            var liveDisplay = '❤️❤️❤️'
-            break
-        default:
-            var liveDisplay = ''
+function saveBestScore() {
+    var level = gLevel.NAME
+
+    if (!localStorage.getItem(`${level}BestScore`)) {
+        //No score exist
+        localStorage.setItem(`${level}BestScore`, gGame.secsPassed)
+    } else if (localStorage.getItem(`${level}BestScore`) > gGame.secsPassed) {
+        //new high score
+        console.log(`new best score for ${level} level`);
+        localStorage.setItem(`${level}BestScore`, gGame.secsPassed)
+        return true
     }
-    var elLiveCounter = document.querySelector('.live-counter')
-    elLiveCounter.innerHTML = liveDisplay
-}
 
-function onLivesMode(elLivesBtn) {
-    if (!gIsFirstClick) return
-    gIsLivesMode = !gIsLivesMode
-    gGame.lives = gIsLivesMode ? 3 : 0
-
-    var lives = gIsLivesMode ? 3 : 0
-    console.log(elLivesBtn);
-    elLivesBtn.style.backgroundColor = gIsLivesMode ? 'red' : 'white'
-    console.log('hiii', lives);
-    renderLiveCount(lives)
 
 }
 
-function reduceLives() {
-    var elRestartBtn = document.querySelector('.restart-btn')
-    elRestartBtn.innerHTML = SMILE_HIT_MINE
+function renderBestScore(level) {
 
-    setTimeout(() => {
-        if (gGame.isOn) elRestartBtn.innerHTML = SMILE
-    }, 2000);
-    gGame.lives--
-    renderLiveCount(gGame.lives)
+    var elBestScore = document.querySelector('.score-board span')
+    if (localStorage.getItem(`${level}BestScore`)) {
+        elBestScore.innerText = localStorage.getItem(`${level}BestScore`) + ' seconds'
+    } else {
+        elBestScore.innerText = 'Never been played before'
+    }
 }
-
 /////////////////////////////////////////////////////////////////////////////////
-//*PICK LEVEL
-//TODO Make beginner mode light up on refresh 
-function onChangeLevel(elLevel, level) {
-    if (!gIsFirstClick) return
+//*UNDO
 
-    switch (level) {
-        case 0:
-            // var size = +prompt('choose size:')
-            // var mineCount = +prompt('Mines number:')
-            gLevel = { SIZE: 2, MINES: 1 }
-            break
-        case 1:
-            gLevel = { SIZE: 4, MINES: 2 }
-            break
-        case 2:
-            gLevel = { SIZE: 8, MINES: 14 }
-            break
-        case 3:
-            gLevel = { SIZE: 12, MINES: 32 }
-            break
-        default:
-            gLevel = { SIZE: 4, MINES: 2 }
-            break
+function onUndo() {
+    if (gIsFirstClick) return
+
+    var loc = gLastClick
+
+    if (gBoard[loc.i][loc.j].isMine) {
+
+    } else if (gBoard[loc.i][loc.j].minesAroundCount) {
+        console.log('undo');
+        undoCounterClick()
+
+    } else {
+        var elCell = document.querySelector(`.cell-${loc.i}-${loc.j}`)
+        undoExpandUncover(gBoard, elCell, loc.i, loc.j)
     }
 
-    displayLevel(level)
-
-    onInit()
 }
 
-function displayLevel(level) {
-    for (var i = 0; i < 4; i++) {
-        var elCurrLevel = document.querySelector(`.level${i}`)
-        if (i === level) {
-            elCurrLevel.classList.add('level-on')
-            continue
-        }
-        elCurrLevel.classList.remove('level-on')
+function undoCounterClick() {
+    var location = gLastClick
+
+    //Model
+    gBoard[location.i][location.j].isCovered = true
+    gGame.coveredCount++
+    //DOM
+    renderCell(location, COVERED_CELL)
+}
+
+function undoExpandUncover(board) {
+    // return
+    //TODO FIX function
+
+    for (var i = 0; i < gExpandedCells.length; i++) {
+        //Model
+        var cellI = gExpandedCells[i].i
+        var cellJ = gExpandedCells[i].j
+        board[cellI][cellJ].isCovered = true
+        gGame.coveredCount++
+        //DOM
+        var elCurrCell = gExpandedCells[i].selector
+        elCurrCell.innerHTML = COVERED_CELL
     }
+    //TODO bandage for bug , without this center cell is not undone. fix better
+    var loc = gLastClick
+    //Model
+    board[loc.i][loc.j].isCovered = true
+    gGame.coveredCount++
+    //DOM
+    var elCurrCell = document.querySelector(`.cell-${loc.i}-${loc.j}`)
+    elCurrCell.innerHTML = COVERED_CELL
+
+
+
+
+
 }
