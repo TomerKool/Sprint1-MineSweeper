@@ -1,9 +1,7 @@
 'use strict'
 
-//TODO Storage best score in other levels 
 //TODO fix or remove undo
-//TODO Set wrong flag icon
-//TODO should also start timer and game
+//TODO maybe onMarkedCell should also start timer and game
 //Images
 const COVERED_CELL = '🟫'
 const MINE = '💣'
@@ -14,7 +12,7 @@ const SMILE_WIN = '😎'
 const SMILE_LOSE = '😵'
 const SMILE_HIT_MINE = '😨'
 const EMPTY = '🌫️'
-const SAFE_CELL = '🕶️'
+const SAFE_CELL = '😎'
 
 
 
@@ -345,6 +343,7 @@ function saveBestScore() {
     if (!localStorage.getItem(`${level}BestScore`)) {
         //No score exist
         localStorage.setItem(`${level}BestScore`, gGame.secsPassed)
+        return true
     } else if (localStorage.getItem(`${level}BestScore`) > gGame.secsPassed) {
         //new high score
         console.log(`new best score for ${level} level`);
@@ -417,9 +416,5 @@ function undoExpandUncover(board) {
     //DOM
     var elCurrCell = document.querySelector(`.cell-${loc.i}-${loc.j}`)
     elCurrCell.innerHTML = COVERED_CELL
-
-
-
-
 
 }

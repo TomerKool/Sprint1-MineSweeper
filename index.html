@@ -19,7 +19,7 @@
             <button hidden class="btn level0" onclick="onChangeLevel(this, 0)">Customize</button><br>
         </div>
 
-        <button class="btn lives-btn" onclick="onLivesMode(this)">Lives</button><br>
+        <button class="btn lives-btn" onclick="onLivesMode(this)">Lives Mode</button><br>
     </div>
 
 
@@ -34,10 +34,12 @@
         
         <button class="btn safeclick-btn" onclick="onSafeClick()">Safe click</button>
         <span class="safeclick-count"></span> clicks left
-        
-        <button class="btn hint-btn hint-btn1" onclick="onClickHint(this)">💡</button>
-        <button class="btn hint-btn hint-btn2" onclick="onClickHint(this)">💡</button>
-        <button class="btn hint-btn hint-btn3" onclick="onClickHint(this)">💡</button>
+        <div class="hint-box">
+
+            <button class="btn hint-btn hint-btn1" onclick="onClickHint(this)">💡</button>
+            <button class="btn hint-btn hint-btn2" onclick="onClickHint(this)">💡</button>
+            <button class="btn hint-btn hint-btn3" onclick="onClickHint(this)">💡</button>
+        </div>
 
 
         <button hidden>Mega hint</button>

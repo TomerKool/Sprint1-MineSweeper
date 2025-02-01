@@ -63,7 +63,6 @@ function reduceLives() {
 
 /////////////////////////////////////////////////////////////////////////////////
 //*PICK LEVEL
-//TODO (nice to have) Make beginner mode light up on refresh 
 function onClickLevel(levelNum) {
     if (!gIsFirstClick) return
 
@@ -103,7 +102,6 @@ function displayLevel() {
         elCurrLevel.classList.remove('level-on')
     }
     renderBestScore(gLevel.NAME)
-    //todo add support for best score per level
 }
 
 function getLevelNum() {

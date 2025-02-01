@@ -62,11 +62,11 @@ function startTimer() {
     gStartTime = Date.now()
     gInterval = setInterval(updateTime, 1)
 }
-var gElapTime
+
 function updateTime() {
     var currTime = Date.now()
     var elapsedTime = currTime - gStartTime
-    gElapTime = elapsedTime
+    
     var min = Math.floor(elapsedTime / (1000 * 60) % 60)
     var sec = Math.floor(elapsedTime / 1000 % 60)
     var milSec = Math.floor(elapsedTime % 1000)
